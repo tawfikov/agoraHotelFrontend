@@ -1,7 +1,11 @@
 import { NavLink, Outlet } from "react-router-dom"
+import { useBranches } from './components/context/BranchesContext'
+import { useState } from "react";
 
 function App() {
 
+  const [open, setOpen] = useState(false)
+  const { branches, loading } = useBranches()
 
   return (
     <>
@@ -19,16 +23,32 @@ function App() {
         >
           Home
         </NavLink>
+        <div
+          className="relative group hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.6)] transition"
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+          >
+          <span className="cursor-pointer">Our Branches</span>
 
-        <NavLink to="/branches" end
-        className={({ isActive }) =>
-        isActive ? "font-semibold text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]"
-        : "hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.6)] transition"
-        }
-        >
-          Our Branches
-        </NavLink>
+          {open && (
+            <div
+            className="absolute hidden group-hover:block bg-amber-200 opacity-80 text-black p-2 rounded shadow w-max"
+            >
+              {loading? (<p>Loading...</p>) : (
 
+                branches.map(b => (
+                  <NavLink
+                  key={b.id}
+                  to={`/branches/${b.id}`}
+                  className="block px-2 py-1 hover:bg-amber-50"
+                  >
+                    {b.name}
+                  </NavLink>
+                ))
+              )}
+            </div>
+          )}
+        </div>
         <NavLink to="/rooms" end
         className={({ isActive }) =>
         isActive ? "font-semibold text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]"
