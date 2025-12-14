@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom"
-import { useBranches } from './components/context/BranchesContext'
+import { useBranches } from './context/BranchesContext'
 import { useState } from "react";
 
 function App() {

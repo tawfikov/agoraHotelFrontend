@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useBranches } from '../context/BranchesContext'
+import { useBranches } from '../../context/BranchesContext'
 //import { useEffect, useState } from "react";
 
 export const BranchDetails = () => {
@@ -21,7 +21,7 @@ export const BranchDetails = () => {
             <h3>{branch.location}</h3>
             <div>{branch.description}</div>
             <div>
-                {branchGallery.map(p => <img src={p} /> )}
+                {branchGallery.map(p => <img src={p} key={p} /> )}
             </div>
         </div>
     )

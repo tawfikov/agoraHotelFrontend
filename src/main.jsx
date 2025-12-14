@@ -1,11 +1,12 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import Home from './components/Home.jsx'
 import { RouterProvider, createBrowserRouter } from "react-router-dom"
 import './index.css'
-import { BranchProvider } from './components/context/BranchesContext.jsx'
+import { BranchProvider } from './context/BranchesContext.jsx'
 import { BranchDetails } from './components/features/BranchDetails.jsx'
+import { AuthProvider } from './context/AuthContext.jsx'
+import { Login } from './components/Login.jsx'
 
 const router = createBrowserRouter([
   {
@@ -13,16 +14,16 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {index: true, element: <Home />},
-      {path: '/branches/:branchId', element: <BranchDetails />}
+      {path: '/branches/:branchId', element: <BranchDetails />},
+      {path: '/login', element: <Login />}
     ]
   }
 ])
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  <AuthProvider>
     <BranchProvider>
       <RouterProvider router={router} />
     </BranchProvider>
-    
-  </StrictMode>,
+  </AuthProvider>
 )
