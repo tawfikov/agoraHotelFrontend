@@ -16,9 +16,12 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
     const restore = async () => {
       try {
-        const res = await refresh()
-        setAccessToken(res.accessToken)
-        setUser(res.user)
+        if (loading) {
+            const res = await refresh()
+            setAccessToken(res.accessToken)
+            setUser(res.user)
+        }
+        
       } catch {
         setUser(null)
         setAccessToken(null)
@@ -28,10 +31,11 @@ export const AuthProvider = ({ children }) => {
     }
 
     restore()
-  }, [])
+  })
 
 
     useEffect(() => {
+        //autonatically attach access token to requests.
         const reqInt = axiosAuth.interceptors.request.use(
             (config) => {
                 if (accessToken) {
@@ -43,6 +47,7 @@ export const AuthProvider = ({ children }) => {
 
         const resInt = axiosAuth.interceptors.response.use(
             res => res,
+            //when request throws 401
             async (err) => {
                 const originalReq = err.config
                 if (originalReq.url.includes("/auth/refresh")) {
@@ -50,11 +55,12 @@ export const AuthProvider = ({ children }) => {
                 }
                 if (err.response?.status === 401 && !originalReq._retry) {
                     originalReq._retry = true
-
+                    //call refresh endpoint once
                     try {
                         const res = await refresh()
                         setAccessToken(res.accessToken)
                         originalReq.headers.Authorization = `Bearer ${res.accessToken}`
+                        //resend the original request
                         return axiosAuth(originalReq)
                     } catch {
                         setAccessToken(null)
@@ -68,7 +74,7 @@ export const AuthProvider = ({ children }) => {
             axiosAuth.interceptors.request.eject(reqInt)
             axiosAuth.interceptors.response.eject(resInt)
         }
-    },)
+    },[accessToken])
 
     const loginCon = async (creds) => {
         const res = await login(creds)
@@ -92,9 +98,9 @@ export const AuthProvider = ({ children }) => {
         value={{
             user,
             accessToken,
-            loginCon,
-            logoutCon,
-            signupCon,
+            login: loginCon,
+            logout: logoutCon,
+            signup: signupCon,
             isAuth: user !== null
         }}
         >

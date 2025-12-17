@@ -18,7 +18,7 @@ export const logout = async () => {
 }
 
 export const signup = async (creds) => {
-    const res = await axios.post(`${baseUrl}/signup`, creds, { withCredentials: true })
+    const res = await axios.post(`${baseUrl}/register`, creds, { withCredentials: true })
     return res.data
 }
 

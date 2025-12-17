@@ -7,6 +7,7 @@ import { BranchProvider } from './context/BranchesContext.jsx'
 import { BranchDetails } from './components/features/BranchDetails.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { Login } from './components/Login.jsx'
+import { Signup } from './components/Signup.jsx'
 
 const router = createBrowserRouter([
   {
@@ -15,7 +16,8 @@ const router = createBrowserRouter([
     children: [
       {index: true, element: <Home />},
       {path: '/branches/:branchId', element: <BranchDetails />},
-      {path: '/login', element: <Login />}
+      {path: '/login', element: <Login />},
+      {path: '/signup', element: <Signup />}
     ]
   }
 ])

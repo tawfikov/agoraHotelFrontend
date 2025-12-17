@@ -1,11 +1,23 @@
 import { NavLink, Outlet } from "react-router-dom"
 import { useBranches } from './context/BranchesContext'
-import { useState } from "react";
+import { useState } from "react"
+import { useAuth } from "./context/AuthContext"
+//import { axiosAuth } from "./api/axiosAuth"
 
 function App() {
 
   const [open, setOpen] = useState(false)
   const { branches, loading } = useBranches()
+  const { user, logout } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      console.log('logged out')
+    } catch(err) {
+      console.error('failed to logout', err)
+    }
+  }
 
   return (
     <>
@@ -57,8 +69,19 @@ function App() {
         >
           Rooms
         </NavLink>
-
-        <NavLink to="/login" end
+        {loading? null : user ? (
+          <>
+            <div>
+              Welcome, {user.name}
+            </div>
+            <div>
+              <button onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          </>  
+      ) : (
+             <NavLink to="/login" end
         className={({ isActive }) =>
         isActive ? "font-semibold text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]"
         : "hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.6)] transition"
@@ -66,6 +89,8 @@ function App() {
         >
           Login
         </NavLink>
+   
+      )}
         
       </div>
     </nav>
