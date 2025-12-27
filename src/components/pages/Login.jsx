@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { useAuth } from '../context/AuthContext'
-import { NavLink, useNavigate } from "react-router-dom"
+import { useAuth } from '../../context/AuthContext'
+import { NavLink, useLocation, useNavigate } from "react-router-dom"
 
 export const Login = () => {
     const [identifier, setIdentifier] = useState("")
@@ -8,6 +8,9 @@ export const Login = () => {
     const [errMsg, setErrMsg] = useState("")
     const { login, user } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
+
+    const from = location.state?.from || '/'
 
     const handleLogin = async (e) => {
         e.preventDefault()
@@ -27,9 +30,9 @@ export const Login = () => {
 
      useEffect(() => {
         if (user) {
-         navigate("/", { replace: true })
+         navigate(from, { replace: true })
         }
-     }, [user, navigate])
+     }, [user, navigate, from])
 
      if (user) return null
 
@@ -39,6 +42,12 @@ export const Login = () => {
             <h2 className="text-3xl font-bold text-center">
                 Log in
             </h2>
+            {location.state?.from && (
+            <p className="text-center font-bold text-amber-700 mb-4">
+                Please log in to continue booking.
+            </p>
+            )}
+
             <form onSubmit={handleLogin} className="space-y-4">
                 <input
                     className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-amber-500"

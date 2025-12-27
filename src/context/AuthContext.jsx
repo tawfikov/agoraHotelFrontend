@@ -10,32 +10,29 @@ export const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
     const [accessToken, setAccessToken] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [authLoading, setAuthLoading] = useState(true)
 
 
     useEffect(() => {
     const restore = async () => {
       try {
-        if (loading) {
-            const res = await refresh()
-            setAccessToken(res.accessToken)
-            setUser(res.user)
-        }
-        
+        const res = await refresh()
+        setAccessToken(res.accessToken)
+        setUser(res.user)
       } catch {
         setUser(null)
         setAccessToken(null)
       } finally {
-        setLoading(false)
+        setAuthLoading(false)
       }
     }
 
     restore()
-  })
+  }, [])
 
 
     useEffect(() => {
-        //autonatically attach access token to requests.
+        //automatically attach access token to requests.
         const reqInt = axiosAuth.interceptors.request.use(
             (config) => {
                 if (accessToken) {
@@ -101,6 +98,7 @@ export const AuthProvider = ({ children }) => {
             login: loginCon,
             logout: logoutCon,
             signup: signupCon,
+            authLoading,
             isAuth: user !== null
         }}
         >
