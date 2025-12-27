@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useRef } from "react";
 import { refresh, login, logout, signup } from '../api/auth.js'
 import { axiosAuth } from "../api/axiosAuth.js";
 
@@ -10,14 +10,34 @@ export const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
     const [accessToken, setAccessToken] = useState(null)
+    const [refreshToken, setRefreshToken] = useState(null)
     const [authLoading, setAuthLoading] = useState(true)
+    const tokenRef = useRef(null)
+
+    const extractToken = (payload) => payload?.accessToken ?? null
+
+    const applyToken = (token) => {
+        tokenRef.current = token
+        setAccessToken(token)
+        if (token) {
+            axiosAuth.defaults.headers.common.Authorization = `Bearer ${token}`
+        } else {
+            delete axiosAuth.defaults.headers.common.Authorization
+        }
+    }
 
 
     useEffect(() => {
     const restore = async () => {
       try {
         const res = await refresh()
-        setAccessToken(res.accessToken)
+        const token = extractToken(res)
+        if (token) {
+          applyToken(token)
+        }
+        if (res?.refreshToken) {
+          setRefreshToken(res.refreshToken)
+        }
         setUser(res.user)
       } catch {
         setUser(null)
@@ -32,11 +52,12 @@ export const AuthProvider = ({ children }) => {
 
 
     useEffect(() => {
-        //automatically attach access token to requests.
+        // automatically attach access token to requests.
         const reqInt = axiosAuth.interceptors.request.use(
             (config) => {
-                if (accessToken) {
-                    config.headers.Authorization = `Bearer ${accessToken}`
+                const token = tokenRef.current
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`
                 }
                 return config
             }
@@ -55,12 +76,19 @@ export const AuthProvider = ({ children }) => {
                     //call refresh endpoint once
                     try {
                         const res = await refresh()
-                        setAccessToken(res.accessToken)
-                        originalReq.headers.Authorization = `Bearer ${res.accessToken}`
+                        const token = extractToken(res)
+                        if (token) {
+                          applyToken(token)
+                          originalReq.headers.Authorization = `Bearer ${token}`
+                        }
+                        if (res?.refreshToken) {
+                          setRefreshToken(res.refreshToken)
+                        }
                         //resend the original request
                         return axiosAuth(originalReq)
                     } catch {
                         setAccessToken(null)
+                        setRefreshToken(null)
                         setUser(null)
                     }
                 }
@@ -73,16 +101,27 @@ export const AuthProvider = ({ children }) => {
         }
     },[accessToken])
 
+    useEffect(() => {
+        tokenRef.current = accessToken
+    }, [accessToken])
+
     const loginCon = async (creds) => {
         const res = await login(creds)
+        const token = extractToken(res)
+        if (token) {
+          applyToken(token)
+        }
+        if (res?.refreshToken) {
+          setRefreshToken(res.refreshToken)
+        }
         setUser(res.user)
-        setAccessToken(res.accessToken)
     }
 
     const logoutCon = async () => {
         await logout()
         setUser(null)
-        setAccessToken(null)
+        applyToken(null)
+        setRefreshToken(null)
     }
 
     const signupCon = async (creds) => {
@@ -95,6 +134,7 @@ export const AuthProvider = ({ children }) => {
         value={{
             user,
             accessToken,
+            refreshToken,
             login: loginCon,
             logout: logoutCon,
             signup: signupCon,

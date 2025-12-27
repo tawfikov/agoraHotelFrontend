@@ -1,7 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from "react"
-import axios from "axios"
-import { useAuth } from "../context/AuthContext"
 import { Wifi, Snowflake, Tv, Coffee, Bath, Martini, Laptop } from "lucide-react"
 
 export const amenityConfig = {
@@ -66,27 +64,19 @@ const AmenitiesGrid = ({ amenities }) => {
 }
 
 
-const RoomCard = ({ room, branchId, checkIn, checkOut }) => {
-  const { user } = useAuth()
+const RoomCard = ({ room, branchId, checkIn, checkOut, onBook }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleBookNow = async () => {
-    if (!user) return
+  const handleBookClick = async () => {
+    if (!onBook) return
     setLoading(true)
     setError("")
     try {
-      const { data } = await axios.post("/api/bookings", {
-        branchId,
-        roomTypeId: room.id,
-        userId: user.sub,
-        checkIn,
-        checkOut,
-      })
-      alert(`Booking successful! Total: EGP ${data.newBooking.totalPrice}`)
+      await onBook({ room, branchId, checkIn, checkOut })
     } catch (err) {
       console.error(err)
-      setError(err.response?.data?.message || "Failed to create booking")
+      setError(err.message || "Failed to create booking")
     } finally {
       setLoading(false)
     }
@@ -134,7 +124,7 @@ const RoomCard = ({ room, branchId, checkIn, checkOut }) => {
           </div>
 
           <button
-            onClick={handleBookNow}
+            onClick={handleBookClick}
             disabled={loading}
             className="bg-amber-700 text-white px-4 py-2 rounded-md hover:bg-amber-800 transition disabled:opacity-50"
           >

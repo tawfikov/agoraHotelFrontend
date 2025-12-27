@@ -7,6 +7,7 @@ import { axiosAuth } from "../api/axiosAuth"
 import RoomCard from "./RoomCard"
 import { FaUser, FaHotel, FaCalendarAlt } from "react-icons/fa"
 import PageLoader from "./PageLoader"
+import { createBooking } from "../api/protected/booking"
 
 const DAY = 1000*3600*24
 
@@ -80,6 +81,7 @@ export const BookingForm = () => {
       )
 
         setRooms(roomsWithPrice)
+        console.log(rooms)
     } catch (err) {
         console.error(err)
         console.error(err.response?.data?.message)
@@ -87,6 +89,38 @@ export const BookingForm = () => {
     } finally {
         setLoading(false)
         }
+    }
+
+    const handleBookNow = async ({ room, branchId: selectedBranchId, checkIn: ci, checkOut: co }) => {
+      const roomTypeId = room.roomTypeId ?? room.id
+      if (!roomTypeId) {
+        throw new Error("Missing room type identifier")
+      }
+
+      const payload = {
+        branchId: Number(selectedBranchId),
+        roomTypeId,
+        checkIn: ci,
+        checkOut: co,
+      }
+
+      try {
+        const data = await createBooking(payload)
+        console.log(data)
+        const redirectUrl = data.checkoutUrl
+        if (redirectUrl) {
+          const newTab = window.open(redirectUrl, "_blank", "noopener,noreferrer")
+          if (!newTab) {
+          window.location.assign(redirectUrl)
+        }
+          return
+        }
+        throw new Error("Missing checkout URL from booking response")
+      } catch (err) {
+        console.error(err)
+        const message = err.response?.data?.message || err.message || "Failed to create booking"
+        throw new Error(message)
+      }
     }
 
   return (
@@ -190,6 +224,7 @@ export const BookingForm = () => {
                 branchId={branchId}
                 checkIn={checkIn}
                 checkOut={checkOut}
+                onBook={handleBookNow}
               />
             ))}
           </div>

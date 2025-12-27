@@ -10,6 +10,7 @@ import { Login } from './components/pages/Login.jsx'
 import { Signup } from './components/pages/Signup.jsx'
 import { BookingForm } from './components/BookingForm.jsx'
 import { AuthGate } from './components/AuthGate.jsx'
+import { Profile } from './components/pages/Profile.jsx'
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,8 @@ const router = createBrowserRouter([
       {path: '/branches/:branchId', element: <BranchDetails />},
       {path: '/login', element: <Login />},
       {path: '/signup', element: <Signup />},
-      {path: '/booking', element: <BookingForm />}
+      {path: '/booking', element: <BookingForm />},
+      {path: '/profile', element: <Profile />}
     ]
   }
 ])

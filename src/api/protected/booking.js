@@ -1,5 +1,6 @@
-import { axiosAuth } from '../../utils/axiosInstance.js'
+import { axiosAuth } from '../../api/axiosAuth'
 
 export const createBooking = async (bookingData) => {
-    await axiosAuth.post('/bookings', bookingData)
+    const { data } = await axiosAuth.post('/booking/checkout', bookingData)
+    return data
 }
