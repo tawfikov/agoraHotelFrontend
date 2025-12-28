@@ -109,10 +109,7 @@ export const BookingForm = () => {
         console.log(data)
         const redirectUrl = data.checkoutUrl
         if (redirectUrl) {
-          const newTab = window.open(redirectUrl, "_blank", "noopener,noreferrer")
-          if (!newTab) {
-          window.location.assign(redirectUrl)
-        }
+          window.open(redirectUrl, "_blank", "noopener,noreferrer")
           return
         }
         throw new Error("Missing checkout URL from booking response")
