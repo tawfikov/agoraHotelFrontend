@@ -11,6 +11,9 @@ import { Signup } from './components/pages/Signup.jsx'
 import { BookingForm } from './components/BookingForm.jsx'
 import { AuthGate } from './components/AuthGate.jsx'
 import { Profile } from './components/pages/Profile.jsx'
+import { AdminGuard } from './components/admin/AdminGuard.jsx'
+import { AdminLayout } from './components/admin/AdminLayout.jsx'
+import { AdminDashboard } from './components/admin/AdminDashboard.jsx'
 
 const router = createBrowserRouter([
   {
@@ -24,7 +27,18 @@ const router = createBrowserRouter([
       {path: '/booking', element: <BookingForm />},
       {path: '/profile', element: <Profile />}
     ]
-  }
+  },
+  {
+    path: '/admin',
+    element: (
+      <AdminGuard>
+        <AdminLayout />
+      </AdminGuard>
+    ),
+    children: [
+      { index: true, element: <AdminDashboard /> },
+    ],
+  },
 ])
 
 createRoot(document.getElementById('root')).render(
